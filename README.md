@@ -22,11 +22,23 @@ Zentralbahn trains for the next three months, for each stop and each class.
 | Path | What it is |
 |---|---|
 | `notebooks/crowding_analysis.ipynb` | The analysis, with all charts |
-| `app.py` | Streamlit app: map by hour, station board, busiest trains, commuter tide, 3-month calendar |
+| `app.py`, `views/` | Streamlit app (see below) |
 | `crowding/parse.py` | Streaming parser for the SIRI-ET XML zip |
+| `crowding/lines.py` | Line names (S12, IC5, …) from the GTFS timetable, matched on the train number |
 | `crowding/build.py` | Downloads the data and builds the tables |
 | `crowding/theme.py` | SDSC chart palette for matplotlib and plotly |
 | `data/app/` | Small snapshot (7 days) that the app reads |
+
+## App pages
+
+- **Stations by hour:** map of crowded departures for each hour.
+- **Crowded segments:** map of the stretches between stops, coloured by crowding, for each hour.
+- **Commuter tide:** which stations are crowded in the morning and which in the evening.
+- **A → B planner:** all direct trains between two stations, with the worst level on the way.
+- **Station board:** departures of one station, with line, destination and level.
+- **Line explorer:** heatmap (stop × hour) and Marey diagram (every train) for one line.
+- **Busiest trains:** trains and lines with the most *standing room only* stops.
+- **Next 3 months:** share of crowded departures for every forecast day.
 
 ## Run it
 
@@ -36,7 +48,7 @@ Locally:
 
 ```bash
 pip install -r requirements.txt
-python -m crowding.build          # downloads ~130 MB, parses 14 days (~2 min)
+python -m crowding.build          # downloads ~420 MB (forecast + GTFS), parses 14 days (~2 min)
 streamlit run app.py
 ```
 
@@ -46,8 +58,10 @@ streamlit run app.py
 
 - Occupancy forecast: SIRI-ET XML, one file per operator and day, updated daily.
   Levels: *many seats*, *few seats*, *standing room only*.
+- Line names: [GTFS timetable](https://opentransportdata.swiss/en/dataset/timetable-2026-gtfs2020). The forecast has no
+  line field, so the build matches each train number to its most frequent GTFS route (about 96% of departures match).
 - Station coordinates: [service points](https://opentransportdata.swiss/en/dataset/service-point-v2) list.
   Stations outside Switzerland have no coordinates there, so the maps do not show them.
 
-Both datasets are from [opentransportdata.swiss](https://opentransportdata.swiss) and are subject to its
+All three datasets are from [opentransportdata.swiss](https://opentransportdata.swiss) and are subject to its
 [terms of use](https://opentransportdata.swiss/en/terms-of-use/).

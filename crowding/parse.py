@@ -29,7 +29,10 @@ def parse_member(zf: zipfile.ZipFile, name: str) -> pd.DataFrame:
             date = journey.findtext(f"{NS}FramedVehicleJourneyRef/{NS}DataFrameRef")
             operator = int(journey.findtext(f"{NS}OperatorRef"))
             train = journey.findtext(f"{NS}TrainNumbers/{NS}TrainNumberRef")
-            for seq, call in enumerate(journey.iter(f"{NS}EstimatedCall")):
+            calls = list(journey.iter(f"{NS}EstimatedCall"))
+            dest_id = int(calls[-1].findtext(f"{NS}StopPointRef"))
+            dest_name = calls[-1].findtext(f"{NS}StopPointName")
+            for seq, call in enumerate(calls):
                 departure = call.findtext(f"{NS}AimedDepartureTime")
                 if departure is None:
                     continue
@@ -38,12 +41,12 @@ def parse_member(zf: zipfile.ZipFile, name: str) -> pd.DataFrame:
                     fare_class = 1 if o.findtext(f"{NS}FareClass") == "firstClass" else 2
                     occ[fare_class] = LEVELS.get(o.findtext(f"{NS}OccupancyLevel"))
                 rows.append((date, operator, train, seq, int(call.findtext(f"{NS}StopPointRef")),
-                             call.findtext(f"{NS}StopPointName"), departure, occ[1], occ[2]))
+                             call.findtext(f"{NS}StopPointName"), departure, occ[1], occ[2], dest_id, dest_name))
             journey.clear()
             while journey.getprevious() is not None:
                 del journey.getparent()[0]
     df = pd.DataFrame(rows, columns=["date", "operator", "train", "seq", "stop_id", "stop_name",
-                                     "departure", "occ_1st", "occ_2nd"])
+                                     "departure", "occ_1st", "occ_2nd", "dest_id", "dest_name"])
     df["departure"] = pd.to_datetime(df["departure"], utc=True).dt.tz_convert("Europe/Zurich")
     return df
 
