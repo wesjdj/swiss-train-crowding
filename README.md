@@ -5,6 +5,9 @@ When and where are Swiss trains crowded? This project uses the SBB
 from opendata.swiss. The dataset gives the expected occupancy of SBB, BLS, Thurbo, SOB and
 Zentralbahn trains for the next three months, for each stop and each class.
 
+- **App:** https://renkulab.io/p/wes/swiss-train-crowding/apps/01M5YDX563ZYWVE7AZR7X0E7V5
+- **Renku project:** https://renkulab.io/p/wes/swiss-train-crowding
+
 ## Findings
 
 - The evening rush (16:00–18:00) is a bit stronger and longer than the morning rush.
